@@ -1,0 +1,60 @@
+from thermo import *
+
+Fail:  Mixture(['water'], ws=[1]).JTl
+
+Fail:  Mixture(['water'], ws=[1]).isobaric_expansion
+
+Class mixture does not have isobaric_expansion_l and isobaric_expansion_g.  It is listed as null.
+
+Fail:  phase_select_property(phase=self.phase, l=self.isobaric_expansion_l, g=self.isobaric_expansion_g)
+
+             phase = l, 
+
+
+Mixture
+    @property
+    def JTl(self):
+        r'''Joule Thomson coefficient of the liquid phase of the mixture if one
+        exists at its current temperature and pressure, in units of [K/Pa].
+
+        .. math::
+            \mu_{JT} = \left(\frac{\partial T}{\partial P}\right)_H = \frac{1}{C_p}
+            \left[T \left(\frac{\partial V}{\partial T}\right)_P - V\right]
+            = \frac{V}{C_p}\left(\beta T-1\right)
+
+        Examples
+        --------
+        >>> Mixture(['dodecane'], ws=[1], T=400).JTl
+        -3.193910574559279e-07
+        '''
+        Vml, Cplm, isobaric_expansion_l = self.Vml, self.Cplm, self.isobaric_expansion_l
+        if all((Vml, Cplm, isobaric_expansion_l)):
+            return Joule_Thomson(T=self.T, V=Vml, Cp=Cplm, beta=isobaric_expansion_l)
+        return None
+
+Chemical
+    @property
+    def JTl(self):
+        r'''Joule Thomson coefficient of the chemical in the liquid phase at
+        its current temperature and pressure, in units of [K/Pa].
+
+        .. math::
+            \mu_{JT} = \left(\frac{\partial T}{\partial P}\right)_H = \frac{1}{C_p}
+            \left[T \left(\frac{\partial V}{\partial T}\right)_P - V\right]
+            = \frac{V}{C_p}\left(\beta T-1\right)
+
+        Utilizes the temperature-derivative method of
+        :obj:`thermo.volume.VolumeLiquid` and the temperature-dependent heat
+        capacity method :obj:`thermo.heat_capacity.HeatCapacityLiquid` to
+        obtain the properties required for the actual calculation.
+
+        Examples
+        --------
+        >>> Chemical('dodecane', T=400).JTl
+        -3.0827160465192742e-07
+        '''
+        Vml, Cplm, isobaric_expansion_l = self.Vml, self.Cplm, self.isobaric_expansion_l
+        if all((Vml, Cplm, isobaric_expansion_l)):
+            return Joule_Thomson(T=self.T, V=Vml, Cp=Cplm, beta=isobaric_expansion_l)
+        return None
+
